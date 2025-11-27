@@ -78,8 +78,8 @@ app.post("/login", async (req, res) => {
         return res.status(404).json({ message: "Bu e-posta ile kayıtlı kullanıcı bulunamadı." });
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
         return res.status(400).json({ message: "Şifre yanlış!" });
     }
 
