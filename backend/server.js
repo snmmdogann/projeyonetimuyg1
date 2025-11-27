@@ -134,3 +134,36 @@ app.post("/reset-password", async (req, res) => {
 app.listen(3000, () => {
     console.log("API çalışıyor: http://localhost:3000");
 });
+// LOGIN API (AUTH-5)
+app.post("/login", async (req, res) => {
+    const { email, password } = req.body;
+
+    // Alan kontrolü
+    if (!email || !password) {
+        return res.status(400).json({ message: "E-posta ve şifre gereklidir." });
+    }
+
+    let users = loadUsers();
+
+    // E-posta kayıtlı mı?
+    const user = users.find(u => u.email === email);
+    if (!user) {
+        return res.status(404).json({ message: "Bu e-posta ile kayıtlı kullanıcı bulunamadı." });
+    }
+
+    // Şifre doğru mu?
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+        return res.status(400).json({ message: "Şifre yanlış!" });
+    }
+
+    // Başarılı giriş
+    return res.status(200).json({
+        message: "Giriş başarılı",
+        user: {
+            id: user.id,
+            username: user.username,
+            email: user.email
+        }
+    });
+});
