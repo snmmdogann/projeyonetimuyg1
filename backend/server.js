@@ -6,7 +6,6 @@ const app = express();
 app.use(express.json());
 
 const DB_FILE = "./backend/users.json";
-
 // Kullanıcıları yükle
 function loadUsers() {
     if (!fs.existsSync(DB_FILE)) return [];
