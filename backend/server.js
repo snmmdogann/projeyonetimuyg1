@@ -24,6 +24,7 @@ function saveUsers(users) {
 app.post("/register", async (req, res) => {
     const { username, email, password, passwordConfirm } = req.body;
 
+    // Alan kontrolü
     if (!username || !email || !password || !passwordConfirm) {
         return res.status(400).json({ message: "Tüm alanlar gereklidir." });
     }
@@ -34,11 +35,13 @@ app.post("/register", async (req, res) => {
 
     let users = loadUsers();
 
+    // E-posta daha önce kullanılmış mı?
     const exists = users.find(u => u.email === email);
     if (exists) {
         return res.status(400).json({ message: "Bu e-posta zaten kayıtlı!" });
     }
 
+    // Şifreyi hashle
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = {
@@ -67,17 +70,20 @@ app.post("/register", async (req, res) => {
 app.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
+    // Alan kontrolü
     if (!email || !password) {
         return res.status(400).json({ message: "E-posta ve şifre gereklidir." });
     }
 
     let users = loadUsers();
 
+    // Kullanıcı var mı?
     const user = users.find(u => u.email === email);
     if (!user) {
         return res.status(404).json({ message: "Bu e-posta ile kayıtlı kullanıcı bulunamadı." });
     }
 
+    // Şifre doğru mu?
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
         return res.status(400).json({ message: "Şifre yanlış!" });
@@ -99,12 +105,14 @@ app.post("/login", async (req, res) => {
 app.post("/reset-password", async (req, res) => {
     const { email, newPassword } = req.body;
 
+    // Alan kontrolü
     if (!email || !newPassword) {
         return res.status(400).json({ message: "E-posta ve yeni şifre gereklidir." });
     }
 
     let users = loadUsers();
 
+    // Kullanıcı var mı?
     const user = users.find(u => u.email === email);
     if (!user) {
         return res.status(404).json({ message: "Bu e-posta ile kayıtlı kullanıcı bulunamadı." });
@@ -114,7 +122,7 @@ app.post("/reset-password", async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
 
-    // Güncellenen kullanıcıları kaydet
+    // Güncel listeyi kaydet
     saveUsers(users);
 
     return res.status(200).json({
